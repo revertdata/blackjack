@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Blackjack</title>
+	<link rel="stylesheet" type="text/css" href="./assets/css/dist/style.css">
+</head>
+<body>
+	<header>
+		Blackjack
+	</header>
+	<div id="app">
+		<button v-if="!session" v-on:click="newDeck">Begin</button>
+		<div class="board" v-if="session">
+			<div class="dealer container">
+				<div class="dealer cards">
+					<img src="./assets/img/hidden.png" class="hidden card" v-if="!dealer.show" />
+					<img v-for="(card, index) in dealer.cards" :src="card.image" :alt="card.value" v-if="dealer.show || index > 0" />
+				</div>
+				<div class="dealer score">Dealer: {{ dealer.show ? dealer.points : dealer.initPoints }}</div>
+			</div>
+			<hr>
+			<div class="you container">
+				<div class="you score">You: {{ you.points }}</div>
+				<div class="you cards">
+					<img v-for="card in you.cards" :src="card.image" :alt="card.value" />
+				</div>
+			</div>
+			<div class="actions" v-if="round">
+				<button v-on:click="hit(1, true)">Hit</button>
+				<button v-on:click="stand(1, true, true)">Stand</button>
+			</div>
+			<div v-else>
+				<button v-on:click="shuffle">Try again</button>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="https://unpkg.com/vue"></script>
+<script src="./assets/js/script.js"></script>
+</html>

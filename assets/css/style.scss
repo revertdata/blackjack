@@ -1,0 +1,29 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+header {
+	padding: 15px 0 30px 0;
+}
+
+.board {
+	margin: 0 auto;
+	width: 500px;
+	height: 500px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-content: center;
+
+	.cards {
+		min-height: 90px;
+		img, .hidden.card {
+			margin: 0 -15px;
+			width: 60px;
+			box-shadow: -3px 1px 3px -1px grey;
+		}
+	}
+}
