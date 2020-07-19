@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Blackjack</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css" />
 	<link rel="stylesheet" type="text/css" href="./assets/css/dist/style.css">
 </head>
 <body>
@@ -24,22 +25,32 @@
 			<button v-on:click="newDeck">Begin</button>
 		</div>
 		<div class="chips" v-if="session">
-			<div class="bet">Bet: {{ you.bet }}</div>
-			<div class="earnings">Earnings: {{ earnings }}</div>
+			<div class="bet">Bet: ${{ you.bet }}</div>
+			<div class="earnings">Earnings: $<span class="value" v-bind:class="[earnings >= 0 ? 'positive' : 'negative']">{{ earnings }}</span></div>
 		</div>
 		<div class="board" v-if="session">
 			<div class="dealer container">
+				<div class="dealer score">
+					<p v-if="dealer.blackjack" class="status animate__animated animate__pulse animate__infinite">Blackjack</p>
+					<p v-else-if="dealer.points > 21" class="status animate__animated animate__pulse animate__infinite">Bust</p>
+					<p v-else class="status"></p>
+					<p>Dealer: {{ dealer.show ? dealer.points : dealer.initPoints }}</p>
+				</div>
 				<div class="dealer cards">
 					<img src="./assets/img/hidden.png" class="hidden card" v-if="!dealer.show" />
-					<img v-for="(card, index) in dealer.cards" :src="card.image" :alt="card.value" v-if="dealer.show || index > 0" />
+					<img v-for="(card, index) in dealer.cards" :src="card.image" :alt="card.value" v-if="dealer.show || index > 0" class="animate__animated animate__flipInX" />
 				</div>
-				<div class="dealer score">Dealer: {{ dealer.show ? dealer.points : dealer.initPoints }}</div>
 			</div>
 			<hr>
 			<div class="you container">
-				<div class="you score">You: {{ you.points }}</div>
 				<div class="you cards">
-					<img v-for="card in you.cards" :src="card.image" :alt="card.value" />
+					<img v-for="card in you.cards" :src="card.image" :alt="card.value" class="animate__animated animate__flipInX" />
+				</div>
+				<div class="you score">
+					<p>You: {{ you.points }}</p>
+					<p v-if="you.blackjack" class="status animate__animated animate__pulse animate__infinite">Blackjack</p>
+					<p v-else-if="you.points > 21" class="status animate__animated animate__pulse animate__infinite">Bust</p>
+					<p v-else class="status"></p>
 				</div>
 			</div>
 			<div class="actions" v-if="round">
@@ -48,6 +59,9 @@
 			</div>
 			<div v-else class="actions">
 				<button v-on:click="shuffle">Try again</button>
+			</div>
+			<div v-if="winner !== ''" class="winner animate__animated animate__fadeInUp animate__slower">
+				<span>Winner:</span> {{ winner }}
 			</div>
 		</div>
 	</div>

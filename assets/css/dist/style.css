@@ -99,6 +99,18 @@ button:hover {
   grid-row-gap: 15px;
 }
 
+.chips .earnings .value {
+  margin-left: 2px;
+}
+
+.chips .earnings .value.positive {
+  color: green;
+}
+
+.chips .earnings .value.negative {
+  color: red;
+}
+
 .board {
   margin: 0 auto;
   width: 500px;
@@ -128,15 +140,60 @@ button:hover {
   opacity: 0.1;
 }
 
-.board .score {
-  padding: 10px;
+.board .winner {
+  padding: 7px 0;
+  width: 600px;
+  max-width: 100vw;
+  position: absolute;
+  left: -60px;
+  background: black;
+  font-family: 'Rowdies', serif;
+  font-weight: 700;
+  text-align: center;
+  font-size: 50px;
+  text-transform: uppercase;
+  text-shadow: 5px 5px #232323;
+  line-height: 1;
+  letter-spacing: 5px;
 }
 
-.board .cards {
+@media only screen and (max-width: 600px) {
+  .board .winner {
+    left: -10px;
+  }
+}
+
+.board .winner span {
+  display: block;
+  font-size: 25px;
+  text-shadow: none;
+  text-transform: none;
+  letter-spacing: 1px;
+}
+
+.board .container {
+  padding: 5px 0;
+}
+
+.board .container .score {
+  padding: 5px 0;
+}
+
+.board .container .score p {
+  min-height: 16px;
+  line-height: 1;
+}
+
+.board .container .score p.status {
+  color: white;
+  font-family: 'Rowdies', serif;
+}
+
+.board .container .cards {
   min-height: 90px;
 }
 
-.board .cards img, .board .cards .hidden.card {
+.board .container .cards img, .board .container .cards .hidden.card {
   margin: 0 -15px;
   width: 60px;
   box-shadow: -3px 1px 3px -1px #232323;

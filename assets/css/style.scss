@@ -2,6 +2,9 @@
 $white: #f7f7f7;
 $black: #232323;
 $purple: #3c2488;
+$light-green: #247c4a;
+$dark-green: #20432c;
+$red-brown: #904128;
 
 * {
 	margin: 0;
@@ -116,6 +119,14 @@ button {
 	grid-template-rows: repeat(2, 1fr);
 	grid-column-gap: 15px;
 	grid-row-gap: 15px;
+
+	.earnings {
+		.value {
+			margin-left: 2px;
+			&.positive { color: green; }
+			&.negative { color: red; }
+		}
+	}
 }
 
 .board {
@@ -130,14 +141,14 @@ button {
 	justify-content: center;
 	align-content: center;
 
-	background: rgb(36,124,74);
-	background: -moz-radial-gradient(circle, rgba(36,124,74,1) 0%, rgba(32,67,44,1) 100%);
-	background: -webkit-radial-gradient(circle, rgba(36,124,74,1) 0%, rgba(32,67,44,1) 100%);
-	background: radial-gradient(circle, rgba(36,124,74,1) 0%, rgba(32,67,44,1) 100%);
+	background: $light-green;
+	background: -moz-radial-gradient(circle, $light-green 0%, $dark-green 100%);
+	background: -webkit-radial-gradient(circle, $light-green 0%, $dark-green 100%);
+	background: radial-gradient(circle, $light-green 0%, $dark-green 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#247c4a",endColorstr="#20432c",GradientType=1);
 
 	border-radius: 50%;
-	border: 10px solid #904128;
+	border: 10px solid $red-brown;
 
 	@media only screen and (max-width: 600px) {
 		border-radius: 0;
@@ -147,15 +158,56 @@ button {
 		opacity: 0.1;
 	}
 
-	.score {
-		padding: 10px;
+	.winner {
+		padding: 7px 0;
+		width: 600px;
+		max-width: 100vw;
+		position: absolute;
+		left: -60px;
+		background: black;
+		font-family: 'Rowdies', serif;
+		font-weight: 700;
+		text-align: center;
+		font-size: 50px;
+		text-transform: uppercase;
+		text-shadow: 5px 5px $black;
+		line-height: 1;
+		letter-spacing: 5px;
+
+		@media only screen and (max-width: 600px) {
+			left: -10px;
+		}
+
+		span {
+			display: block;
+			font-size: 25px;
+			text-shadow: none;
+			text-transform: none;
+			letter-spacing: 1px;
+		}
 	}
-	.cards {
-		min-height: 90px;
-		img, .hidden.card {
-			margin: 0 -15px;
-			width: 60px;
-			box-shadow: -3px 1px 3px -1px $black;
+
+	.container {
+		padding: 5px 0;
+		.score {
+			padding: 5px 0;
+			p {
+				min-height: 16px;
+				line-height: 1;
+				&.status {
+					color: white;
+					font-family: 'Rowdies', serif;
+				}
+			}
+		}
+
+		.cards {
+			min-height: 90px;
+			img, .hidden.card {
+				margin: 0 -15px;
+				width: 60px;
+				box-shadow: -3px 1px 3px -1px $black;
+			}
 		}
 	}
 

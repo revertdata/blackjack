@@ -60,8 +60,9 @@ let app = new Vue({
 
 			return;
 		},
-		endRound: function() {
+		endRound: async function() {
 			this.round = false;
+			await sleep(1);
 			switch (this.winner) {
 				case 'you':
 					this.earnings += this.you.bet;
@@ -109,10 +110,11 @@ let app = new Vue({
 
 			if (you.points === 21) {
 				you.blackjack = true;
+				await sleep(1);
 				this.stand(1, true, true);
 			} else if (you.points > 21) {
 				this.winner = 'dealer';
-				this.endRound();
+				await this.endRound();
 			}
 
 			return;
@@ -133,32 +135,43 @@ let app = new Vue({
 				const json = await response.json();
 
 				for (card of json.cards) {
+					if (show) await sleep(0.7);
 					dealer.cards.push(card);
 					if (!show && dealer.cards.length > 1) dealer.initPoints += cardValue(card.value, dealer.initPoints);
 				}
 				dealer.points = calculateCardPoints(dealer.cards);
-				if (dealer.points === 21) {
+				if (show && dealer.points === 21) {
 					dealer.blackjack = true;
-					_this.winner = 'dealer';
-					_this.endRound();
-				} else if (dealer.points > 21) {
+					await sleep(1);
+					if (you.blackjack) _this.winner = 'tie';
+					else _this.winner = 'dealer';
+					await _this.endRound();
+				} else if (show && dealer.points > 21) {
 					_this.winner = 'you';
-					_this.endRound();
+					await _this.endRound();
 				}
 				if (_this.round && you.uinput) {
 					// random chance to draw again
-					if (dealer.points < 15 || Math.random() >= 0.8) await draw(1);
+					if (dealer.points < you.points && (dealer.points < 15 || Math.random() >= 0.8)) await draw(1);
 					else {
-						if (dealer.points > you.points) _this.winner = 'dealer';
+						if (dealer.points > 21) _this.winner = 'you';
+						else if (dealer.points > you.points) _this.winner = 'dealer';
 						else if (you.points > dealer.points) _this.winner = 'you';
 						else _this.winner = 'tie';
-						_this.endRound();
+						await _this.endRound();
 					}
 				}
 
 				return json.success;
 			}
-			await draw(num);
+			if (!you.uinput || dealer.points < you.points) await draw(num);
+			else if (dealer.points > you.points) {
+				_this.winner = 'dealer';
+				await _this.endRound();
+			} else {
+				_this.winner = 'tie';
+				await _this.endRound();
+			}
 
 			return;
 		}
@@ -166,12 +179,13 @@ let app = new Vue({
 });
 
 function calculateCardPoints(cards) {
-	let points = 0;
-	for (card of cards) {
-		points += cardValue(card.value, points);
-	}
-
-	return points;
+	return cards.map(card => card.value).sort(function(a, b) {
+		if (a === 'ACE') return 1;
+		else if (b === 'ACE') return -1;
+		return a[1] - b[1];
+	}).reduce(function(a, b) {
+		return cardValue(a, this) + cardValue(b, this);
+	}, 0);
 }
 
 function cardValue(value, points) {
@@ -183,4 +197,12 @@ function cardValue(value, points) {
 	}
 
 	return parseInt(value);
+}
+
+function sleep(duration) {
+	return new Promise(resolve => {
+		setTimeout(() => {
+			resolve()
+		}, duration * 1000)
+	})
 }
