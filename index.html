@@ -11,7 +11,22 @@
 		Blackjack
 	</header>
 	<div id="app">
-		<button v-if="!session" v-on:click="newDeck">Begin</button>
+		<div class="place-bet" v-if="!session">
+			<h2>Place your bet:</h2>
+			<p>You have ${{you.money}}.</p>
+			<select name="betamt" id="betamt" v-model="you.bet">
+				<option :value="you.money / 4">{{you.money / 4}}</option>
+				<option :value="you.money / 2">{{you.money / 2}}</option>
+				<option :value="you.money">{{you.money}}</option>
+				<option :value="you.money * 2">{{you.money * 2}}</option>
+				<option :value="you.money * 4">{{you.money * 4}}</option>
+			</select>
+			<button v-on:click="newDeck">Begin</button>
+		</div>
+		<div class="chips" v-if="session">
+			<div class="bet">Bet: {{ you.bet }}</div>
+			<div class="earnings">Earnings: {{ earnings }}</div>
+		</div>
 		<div class="board" v-if="session">
 			<div class="dealer container">
 				<div class="dealer cards">
@@ -31,7 +46,7 @@
 				<button v-on:click="hit(1, true)">Hit</button>
 				<button v-on:click="stand(1, true, true)">Stand</button>
 			</div>
-			<div v-else>
+			<div v-else class="actions">
 				<button v-on:click="shuffle">Try again</button>
 			</div>
 		</div>

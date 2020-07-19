@@ -16,7 +16,8 @@ let app = new Vue({
 			blackjack: false
 		},
 		you: {
-			bet: 0,
+			money: 1000,
+			bet: 250,
 			points: 0,
 			cards: [],
 			blackjack: false,
@@ -33,7 +34,7 @@ let app = new Vue({
 
 			this.deckID =  json.deck_id;
 			this.session = json.success;
-			this.deal();
+			this.newRound();
 
 			return;
 		},
@@ -41,6 +42,7 @@ let app = new Vue({
 			this.round = true;
 			this.winner = '';
 			this.dealer = {
+				...this.dealer,
 				initPoints: 0,
 				points: 0,
 				cards: [],
@@ -48,13 +50,29 @@ let app = new Vue({
 				blackjack: false
 			};
 			this.you = {
-				bet: 0,
+				...this.you,
 				points: 0,
 				cards: [],
 				blackjack: false,
 				uinput: false
 			};
 			this.deal();
+
+			return;
+		},
+		endRound: function() {
+			this.round = false;
+			switch (this.winner) {
+				case 'you':
+					this.earnings += this.you.bet;
+					break;
+				case 'dealer':
+					this.earnings -= this.you.bet;
+				default:
+					break;
+			}
+
+			return;
 		},
 		shuffle: async function() {
 			const response = await fetch(`${apiURL}/${this.deckID}/shuffle/`, {
@@ -66,9 +84,10 @@ let app = new Vue({
 			if (json.success) {
 				this.newRound();
 			}
+
+			return;
 		},
 		deal: function() {
-			this.round = true;
 			this.hit(2, false);
 			this.stand(2, false, false);
 
@@ -93,7 +112,7 @@ let app = new Vue({
 				this.stand(1, true, true);
 			} else if (you.points > 21) {
 				this.winner = 'dealer';
-				this.round = false;
+				this.endRound();
 			}
 
 			return;
@@ -121,17 +140,19 @@ let app = new Vue({
 				if (dealer.points === 21) {
 					dealer.blackjack = true;
 					_this.winner = 'dealer';
-					_this.round = false;
+					_this.endRound();
 				} else if (dealer.points > 21) {
 					_this.winner = 'you';
-					_this.round = false;
+					_this.endRound();
 				}
 				if (_this.round && you.uinput) {
 					// random chance to draw again
 					if (dealer.points < 15 || Math.random() >= 0.8) await draw(1);
 					else {
-						_this.round = false;
-						console.log(dealer.points, you.points);
+						if (dealer.points > you.points) _this.winner = 'dealer';
+						else if (you.points > dealer.points) _this.winner = 'you';
+						else _this.winner = 'tie';
+						_this.endRound();
 					}
 				}
 
