@@ -15,10 +15,12 @@
 			</header>
 			<div class="draw-money" v-if="!session">
 				<p>You have:</p>
-				<p class="money" v-bind:class="you.bank > 0 ? 'animate__animated animate__pulse animate__infinite' : ''">{{you.bank | currency}}</p>
-				<button v-if="you.bank <= 0" v-on:click="drawMoney">CLICK ME</button>
+				<p class="money" v-bind:class="you.bank > 0 ? 'animate__animated animate__pulse animate__infinite' : ''"><span v-if="you.bank > 0">$</span> <span id="bank">{{you.bank | currency}}</span></p>
+				<div class="place-bet" v-if="you.bank <= 0">
+					<button v-on:click="drawMoney">CLICK ME</button>
+				</div>
 			</div>
-			<div class="place-bet" v-if="(!session && you.bank < 0) || placeBet">
+			<div class="place-bet animate__animated animate__fadeIn" v-bind:class="deckID ? '' : 'animate__delay-2s'" v-if="(!session && you.bank < 0) || placeBet">
 				<h2>Place your bet:</h2>
 				<select v-model="you.bet">
 					<option v-if="you.bank / 4 > 0" :value="you.bank / 4">{{(you.bank / 4) | currency}}</option>
@@ -84,5 +86,6 @@
 	</div>
 </body>
 <script src="https://unpkg.com/vue"></script>
+<script src="./assets//js/countup.min.js"></script>
 <script src="./assets/js/script.js"></script>
 </html>

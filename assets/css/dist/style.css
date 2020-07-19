@@ -104,6 +104,11 @@ footer span, footer a {
   color: gray;
 }
 
+.place-bet {
+  padding-top: 15px;
+  min-height: 105px;
+}
+
 .draw-money .money {
   margin: 0 auto;
   width: 80%;

@@ -34,7 +34,7 @@ let app = new Vue({
 
 			return;
 		},
-		drawMoney: function() {
+		drawMoney: async function() {
 			this.you.bank = Math.random() * 100000;
 			this.you.bet = this.you.bank;
 			this.placeBet = true;
@@ -127,7 +127,8 @@ let app = new Vue({
 				headers: { 'Content-type': 'application/json' }
 			});
 			const json = await response.json();
-			for (card of json.cards) {
+
+			for (let card of json.cards) {
 				you.cards.push(card);
 			}
 			you.points = calculateCardPoints(you.cards);
@@ -159,7 +160,7 @@ let app = new Vue({
 				});
 				const json = await response.json();
 
-				for (card of json.cards) {
+				for (let card of json.cards) {
 					if (dealer.show) await sleep(0.7);
 					dealer.cards.push(card);
 					if (!dealer.show && dealer.cards.length > 1) dealer.initPoints += cardValue(card.value, dealer.initPoints);
@@ -211,6 +212,20 @@ let app = new Vue({
 			});
 
 			return formatter.format(inc);
+		}
+	},
+	watch: {
+		bank: function(newCurr, oldCurr) {
+			const options = {
+				startVal: oldCurr,
+			  decimalPlaces: 2
+			};
+			return new countUp.CountUp('bank', newCurr, options).start();
+		}
+	},
+	computed: {
+		bank: function() {
+			return this.you.bank;
 		}
 	}
 });
