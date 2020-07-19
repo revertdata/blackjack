@@ -5,6 +5,7 @@ let app = new Vue({
 	data: {
 		session: false,
 		round: false,
+		placeBet: false,
 		deckID: '',
 		earnings: 0,
 		winner: '',
@@ -16,8 +17,8 @@ let app = new Vue({
 			blackjack: false
 		},
 		you: {
-			money: 1000,
-			bet: 250,
+			bank: 0,
+			bet: 0,
 			points: 0,
 			cards: [],
 			blackjack: false,
@@ -25,6 +26,27 @@ let app = new Vue({
 		}
 	},
 	methods: {
+		restartSession: function() {
+			let conf = confirm('Are you sure you want to restart your session?  This will lose all your progress.');
+			if (conf) {
+				location.reload();
+			}
+
+			return;
+		},
+		drawMoney: function() {
+			this.you.bank = Math.random() * 100000;
+			this.you.bet = this.you.bank;
+			this.placeBet = true;
+
+			return;
+		},
+		changeBet: function() {
+			this.you.bet = this.you.bank;
+			this.placeBet = true;
+
+			return;
+		},
 		newDeck: async function() {
 			const response = await fetch(`${apiURL}/new/shuffle/?deck_count=6`, {
 				method: 'get',
@@ -34,12 +56,12 @@ let app = new Vue({
 
 			this.deckID =  json.deck_id;
 			this.session = json.success;
-			this.newRound();
+			await this.newRound();
 
 			return;
 		},
-		newRound: function() {
-			this.round = true;
+		newRound: async function() {
+			this.placeBet = false;
 			this.winner = '';
 			this.dealer = {
 				...this.dealer,
@@ -57,21 +79,23 @@ let app = new Vue({
 				uinput: false
 			};
 			this.deal();
+			this.round = true;
 
 			return;
 		},
 		endRound: async function() {
-			this.round = false;
-			await sleep(1);
 			switch (this.winner) {
 				case 'you':
 					this.earnings += this.you.bet;
+					this.you.bank += this.you.bet;
 					break;
 				case 'dealer':
 					this.earnings -= this.you.bet;
+					this.you.bank -= this.you.bet;
 				default:
 					break;
 			}
+			this.round = false;
 
 			return;
 		},
@@ -83,7 +107,7 @@ let app = new Vue({
 			const json = await response.json();
 
 			if (json.success) {
-				this.newRound();
+				await this.newRound();
 			}
 
 			return;
@@ -107,11 +131,12 @@ let app = new Vue({
 				you.cards.push(card);
 			}
 			you.points = calculateCardPoints(you.cards);
+			await sleep(0.5);
 
 			if (you.points === 21) {
 				you.blackjack = true;
-				await sleep(1);
 				this.stand(1, true, true);
+				await sleep(1);
 			} else if (you.points > 21) {
 				this.winner = 'dealer';
 				await this.endRound();
@@ -135,18 +160,19 @@ let app = new Vue({
 				const json = await response.json();
 
 				for (card of json.cards) {
-					if (show) await sleep(0.7);
+					if (dealer.show) await sleep(0.7);
 					dealer.cards.push(card);
-					if (!show && dealer.cards.length > 1) dealer.initPoints += cardValue(card.value, dealer.initPoints);
+					if (!dealer.show && dealer.cards.length > 1) dealer.initPoints += cardValue(card.value, dealer.initPoints);
 				}
 				dealer.points = calculateCardPoints(dealer.cards);
-				if (show && dealer.points === 21) {
+				await sleep(0.5);
+
+				if (dealer.show && dealer.points === 21) {
 					dealer.blackjack = true;
-					await sleep(1);
 					if (you.blackjack) _this.winner = 'tie';
 					else _this.winner = 'dealer';
 					await _this.endRound();
-				} else if (show && dealer.points > 21) {
+				} else if (dealer.show && dealer.points > 21) {
 					_this.winner = 'you';
 					await _this.endRound();
 				}
@@ -174,6 +200,17 @@ let app = new Vue({
 			}
 
 			return;
+		}
+	},
+	filters: {
+		currency: function(inc) {
+			const formatter = new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'USD',
+				minimumFractionDigits: 2
+			});
+
+			return formatter.format(inc);
 		}
 	}
 });

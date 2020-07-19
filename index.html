@@ -8,62 +8,79 @@
 	<link rel="stylesheet" type="text/css" href="./assets/css/dist/style.css">
 </head>
 <body>
-	<header>
-		Blackjack
-	</header>
-	<div id="app">
-		<div class="place-bet" v-if="!session">
-			<h2>Place your bet:</h2>
-			<p>You have ${{you.money}}.</p>
-			<select name="betamt" id="betamt" v-model="you.bet">
-				<option :value="you.money / 4">{{you.money / 4}}</option>
-				<option :value="you.money / 2">{{you.money / 2}}</option>
-				<option :value="you.money">{{you.money}}</option>
-				<option :value="you.money * 2">{{you.money * 2}}</option>
-				<option :value="you.money * 4">{{you.money * 4}}</option>
-			</select>
-			<button v-on:click="newDeck">Begin</button>
+	<div id="blackjack">
+		<div id="app">
+			<header v-on:click="restartSession">
+				Blackjack
+			</header>
+			<div class="draw-money" v-if="!session">
+				<p>You have:</p>
+				<p class="money" v-bind:class="you.bank > 0 ? 'animate__animated animate__pulse animate__infinite' : ''">{{you.bank | currency}}</p>
+				<button v-if="you.bank <= 0" v-on:click="drawMoney">CLICK ME</button>
+			</div>
+			<div class="place-bet" v-if="(!session && you.bank < 0) || placeBet">
+				<h2>Place your bet:</h2>
+				<select v-model="you.bet">
+					<option v-if="you.bank / 4 > 0" :value="you.bank / 4">{{(you.bank / 4) | currency}}</option>
+					<option v-if="you.bank / 2 > 0" :value="you.bank / 2">{{(you.bank / 2) | currency}}</option>
+					<option v-if="you.bank > 0" :value="you.bank">{{you.bank | currency}}</option>
+					<option v-if="you.bank * 2 > 0" :value="you.bank * 2">{{(you.bank * 2) | currency}}</option>
+					<option v-if="you.bank * 4 > 0" :value="you.bank * 4">{{(you.bank * 4) | currency}}</option>
+				</select>
+				<button v-on:click="newDeck" v-if="!deckID">Begin</button>
+				<button v-on:click="newRound" v-else>Begin</button>
+			</div>
+			<div class="chips" v-if="session">
+				<div class="bet">
+					<span>Bet: {{ you.bet | currency }}</span>
+				</div>
+				<div class="earnings">
+					<p>Bank: <span class="value" v-bind:class="[you.bank > 0 ? '' : 'negative']">{{ you.bank | currency }}</p>
+					<p>Earnings: <span class="value" v-bind:class="[earnings >= 0 ? 'positive' : 'negative']">{{ earnings | currency }}</span></p>
+				</div>
+			</div>
+			<div class="board" v-if="session && !placeBet">
+				<div class="dealer container">
+					<div class="dealer score">
+						<p v-if="dealer.blackjack" class="status animate__animated animate__pulse animate__infinite">Blackjack</p>
+						<p v-else-if="dealer.points > 21" class="status negative animate__animated animate__pulse animate__infinite">Bust</p>
+						<p v-else class="status"></p>
+						<p>Dealer: {{ dealer.show ? dealer.points : dealer.initPoints }}</p>
+					</div>
+					<div class="dealer cards">
+						<img src="./assets/img/hidden.png" class="hidden card" v-if="!dealer.show" />
+						<img v-for="(card, index) in dealer.cards" :src="card.image" :alt="card.value" v-if="dealer.show || index > 0" class="animate__animated animate__flipInX" />
+					</div>
+				</div>
+				<hr>
+				<div class="you container">
+					<div class="you cards">
+						<img v-for="card in you.cards" :src="card.image" :alt="card.value" class="animate__animated animate__flipInX" />
+					</div>
+					<div class="you score">
+						<p>You: {{ you.points }}</p>
+						<p v-if="you.blackjack" class="status animate__animated animate__pulse animate__infinite">Blackjack</p>
+						<p v-else-if="you.points > 21" class="status negative animate__animated animate__pulse animate__infinite">Bust</p>
+						<p v-else class="status"></p>
+					</div>
+				</div>
+				<div class="actions" v-if="round && !dealer.show">
+					<button v-on:click="hit(1, true)">Hit</button>
+					<button v-on:click="stand(1, true, true)">Stand</button>
+				</div>
+				<div class="actions" v-else-if="!round">
+					<button v-if="you.bank > 0" v-on:click="changeBet">Change bet</button>
+					<button v-on:click="shuffle">Try again</button>
+				</div>
+				<div v-if="winner !== ''" class="winner animate__animated animate__fadeInUp animate__slower">
+					<span>Winner:</span> {{ winner }}
+				</div>
+			</div>
 		</div>
-		<div class="chips" v-if="session">
-			<div class="bet">Bet: ${{ you.bet }}</div>
-			<div class="earnings">Earnings: $<span class="value" v-bind:class="[earnings >= 0 ? 'positive' : 'negative']">{{ earnings }}</span></div>
-		</div>
-		<div class="board" v-if="session">
-			<div class="dealer container">
-				<div class="dealer score">
-					<p v-if="dealer.blackjack" class="status animate__animated animate__pulse animate__infinite">Blackjack</p>
-					<p v-else-if="dealer.points > 21" class="status animate__animated animate__pulse animate__infinite">Bust</p>
-					<p v-else class="status"></p>
-					<p>Dealer: {{ dealer.show ? dealer.points : dealer.initPoints }}</p>
-				</div>
-				<div class="dealer cards">
-					<img src="./assets/img/hidden.png" class="hidden card" v-if="!dealer.show" />
-					<img v-for="(card, index) in dealer.cards" :src="card.image" :alt="card.value" v-if="dealer.show || index > 0" class="animate__animated animate__flipInX" />
-				</div>
-			</div>
-			<hr>
-			<div class="you container">
-				<div class="you cards">
-					<img v-for="card in you.cards" :src="card.image" :alt="card.value" class="animate__animated animate__flipInX" />
-				</div>
-				<div class="you score">
-					<p>You: {{ you.points }}</p>
-					<p v-if="you.blackjack" class="status animate__animated animate__pulse animate__infinite">Blackjack</p>
-					<p v-else-if="you.points > 21" class="status animate__animated animate__pulse animate__infinite">Bust</p>
-					<p v-else class="status"></p>
-				</div>
-			</div>
-			<div class="actions" v-if="round">
-				<button v-on:click="hit(1, true)">Hit</button>
-				<button v-on:click="stand(1, true, true)">Stand</button>
-			</div>
-			<div v-else class="actions">
-				<button v-on:click="shuffle">Try again</button>
-			</div>
-			<div v-if="winner !== ''" class="winner animate__animated animate__fadeInUp animate__slower">
-				<span>Winner:</span> {{ winner }}
-			</div>
-		</div>
+		<footer>
+			<span>Disclaimer: This is not real money and cannot be used as legal tender.</span>
+			<span>Code by <a href="https://github.com/revertdata/blackjack">Maryn Weed</a> (revertdata)</span>
+		</footer>
 	</div>
 </body>
 <script src="https://unpkg.com/vue"></script>

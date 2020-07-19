@@ -20,7 +20,12 @@ $red-brown: #904128;
 
 body {
 	width: 100vw;
-	height: 100vh;
+	min-height: 100vh;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
 	background: $purple;
 	background: -moz-radial-gradient(circle, $purple 0%, #000000 90%);
 	background: -webkit-radial-gradient(circle, $purple 0%, #000000 90%);
@@ -29,13 +34,14 @@ body {
 }
 
 header {
-	padding: 15px 0 30px 0;
+	padding: 15px 0;
 	width: 100vw;
 	font-family: 'Rowdies', serif;
 	font-size: 2.5rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 5px;
+	cursor: pointer;
 }
 
 select {
@@ -49,6 +55,7 @@ select {
 	border-radius: 4px;
 	-webkit-appearance: none;
 	-moz-appearance: none;
+	cursor: pointer;
 
 	background-image:
 		linear-gradient(45deg, transparent 50%, gray 50%),
@@ -64,7 +71,6 @@ select {
 		1.5em 1.5em;
 	background-repeat: no-repeat;
 
-	&:hover { cursor: pointer; }
 	&:focus {
 		background-image:
 		linear-gradient(45deg, white 50%, transparent 50%),
@@ -89,7 +95,7 @@ select {
 }
 
 button {
-	width: 80px;
+	width: 90px;
 	padding: 10px;
 	margin: 10px;
 	border-radius: 5px;
@@ -101,19 +107,38 @@ button {
 	border: 1px solid $black;
 	box-shadow: 0 2px 0 $black;
 	transition: all 250ms linear;
+	cursor: pointer;
 
 	&:hover {
 		text-shadow: -1px -1px 0 #f7f7f7;
 		transition: all 250ms linear;
 		background: #d5d0d5;
 		box-shadow: 1px 1px 2px rgba(0,0,0, .2);
-		cursor: pointer;
+	}
+}
+
+footer {
+	padding: 10px;
+	max-width: 265px;
+	font-size: 10px;
+	text-align: right;
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	span, a { color: gray; }
+}
+
+.draw-money {
+	.money {
+		margin: 0 auto;
+		width: 80%;
+		font-size: 50px;
 	}
 }
 
 .chips {
 	padding: 0;
-	height: 30px;
+	height: 50px;
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	grid-template-rows: repeat(2, 1fr);
@@ -151,6 +176,7 @@ button {
 	border: 10px solid $red-brown;
 
 	@media only screen and (max-width: 600px) {
+		margin-bottom: 40px;
 		border-radius: 0;
 	}
 
@@ -197,6 +223,7 @@ button {
 				&.status {
 					color: white;
 					font-family: 'Rowdies', serif;
+					&.negative { color: red; }
 				}
 			}
 		}
