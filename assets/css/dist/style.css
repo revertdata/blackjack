@@ -98,6 +98,21 @@ footer {
   position: absolute;
   right: 0;
   bottom: 0;
+  background-color: black;
+}
+
+@media only screen and (max-width: 600px) {
+  footer {
+    margin-top: 50px;
+    max-width: 100vw;
+    position: initial;
+    right: initial;
+    bottom: initial;
+    text-align: center;
+  }
+  footer span {
+    display: inline-block;
+  }
 }
 
 footer span, footer a {
